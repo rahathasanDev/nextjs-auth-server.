@@ -42,13 +42,14 @@ async function run() {
       }
 
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // const hashedPassword = await bcrypt.hash(password,Number(12));
+      const hashedPassword = await bcrypt.hash(password,10);
 
       // Insert user into the database
       await collection.insertOne({
         username,
         email,
-        password: hashedPassword,
+        password:hashedPassword,
         role: "user",
       });
 
@@ -65,13 +66,13 @@ async function run() {
       // Find user by email
       const user = await collection.findOne({ email });
       if (!user) {
-        return res.status(401).json({ message: "Invalid email or password" });
+        return res.status(401).json({ message: "user not found " });
       }
 
       // Compare hashed password
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: "Invalid email or password" });
+        return res.status(401).json({ message: "password not matched" });
       }
 
       // Generate JWT token
@@ -89,7 +90,15 @@ async function run() {
         accessToken: token,
       });
     });
+    app.get("/api/v1/getalluser",async(req,res)=>{
+      const result = await collection.find().toArray();
+      res.json({
+        succes:true, 
+        message: "users get succesfully",
+        data:result
 
+      })
+    })
     // Start the server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
