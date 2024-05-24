@@ -90,6 +90,8 @@ async function run() {
         accessToken: token,
       });
     });
+
+
     app.get("/api/v1/getalluser",async(req,res)=>{
       const result = await collection.find().toArray();
       res.json({
@@ -99,6 +101,40 @@ async function run() {
 
       })
     })
+
+  app.get("/api/v1/getsingleuser/:email", async (req, res) => {
+  const email = req.params.email;
+
+  try {
+    // Ensure that the ID is a valid ObjectId
+    // const objectId = new ObjectId(id);
+    
+    // Find a single user by ID
+    const result = await collection.findOne({email});
+    console.log(result);
+    
+    if (result) {
+      
+      res.json({
+        success: true,
+        message: "Single user retrieved successfully",
+        data: result
+      });
+    } else {
+      res.json({
+        success: false,
+        message: "User not found"
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "An error occurred",
+      error: error.message
+    });
+  }
+});
+
     // Start the server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
